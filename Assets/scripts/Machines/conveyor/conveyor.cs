@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-
 public enum conveyorItemRemoveReason
 {
     pickUp,
     continueLine,
     deliver
 };
+
 
 public class conveyor : MonoBehaviour
 {
@@ -32,8 +32,9 @@ public class conveyor : MonoBehaviour
 
     private GameObject child;
     private Renderer childRenderer;
-    private Renderer selfRenderer;
-    
+    //private Renderer selfRenderer;
+
+    private Vector3 objSize;
 
     
     
@@ -42,10 +43,10 @@ public class conveyor : MonoBehaviour
     {
         child = gameObject.transform.Find("base").gameObject;
         childRenderer = child.GetComponent<Renderer>();
-        selfRenderer = GetComponent<Renderer>();
+        //selfRenderer = GetComponent<Renderer>();
 
-
-        length = selfRenderer.bounds.size.x;
+        objSize = transform.localScale;
+        length = objSize.x;
     }
 
     
@@ -63,17 +64,17 @@ public class conveyor : MonoBehaviour
     {
         
     }
-    /*
+    
     void removeItemFromConveyor(conveyorItemRemoveReason reason)
     {
         
         switch (reason)
         {
-            case conveyorItemRemoveReason::pickUp:
+            case conveyorItemRemoveReason.pickUp:
                 break;
-            case conveyorItemRemoveReason::continueLine:
+            case conveyorItemRemoveReason.continueLine:
                 break;
-            case conveyorItemRemoveReason::deliver:
+            case conveyorItemRemoveReason.deliver:
                 deliverItem();
                 break;
 
@@ -85,7 +86,7 @@ public class conveyor : MonoBehaviour
     {
         removeItemFromConveyor((conveyorItemRemoveReason)reason);
     }
-    */
+    
 
         // Update is called once per frame
     void Update()
