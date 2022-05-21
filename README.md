@@ -1,2 +1,6 @@
 # Clean lab proyect
- Code needed for Interactive Systems
+ Assets added:
+  - Player Model
+  - Conveyor
+  - Transformer & Combiner Machines
+  - Item Box
