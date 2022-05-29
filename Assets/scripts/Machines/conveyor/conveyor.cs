@@ -19,12 +19,12 @@ public class conveyor : MonoBehaviour
     public float startPoint = -.45f;
     public float endPoint = .45f;
 
-    public GameObject nextSection;
-    public GameObject prevSection;
+   
 
     public bool isOccupied = false;
     public bool acceptsObjects = true;
     public bool isDeliver = false;
+    public bool canPickUp = false;
 
     private float length;
 
@@ -35,6 +35,10 @@ public class conveyor : MonoBehaviour
     //private Renderer selfRenderer;
 
     private Vector3 objSize;
+
+   public conveyor nextConveyorComponent;
+   public conveyor prevConveyorComponent;
+    
 
     
     
@@ -87,6 +91,37 @@ public class conveyor : MonoBehaviour
         removeItemFromConveyor((conveyorItemRemoveReason)reason);
     }
     
+    void updateItemPosition()
+    {
+        canPickUp = false;
+        if (itemInConveyor == null) return;
+        if (itemInConveyor.transform.localPosition.x >= endPoint * length)
+        {
+            if (nextConveyorComponent)
+            {
+                if (nextConveyorComponent.isOccupied) return;
+                else
+                {
+                    if (itemInConveyor.transform.localPosition.x >= .5 * length)
+                    {
+                        nextConveyorComponent.addItemToConveyor(this.itemInConveyor);
+                        removeItemFromConveyor(conveyorItemRemoveReason.continueLine);
+                    }
+                        
+                }
+            }
+            else {
+                canPickUp = true;
+                return;
+            };
+        }
+        itemInConveyor.transform.localPosition = new Vector3(itemInConveyor.transform.localPosition.x + movingSpeed* Time.deltaTime, 0, 0);
+        if (itemInConveyor.transform.localPosition.x > endPoint * length)
+        {
+            
+        }
+
+    }
 
         // Update is called once per frame
     void Update()
@@ -94,5 +129,9 @@ public class conveyor : MonoBehaviour
         childRenderer.material.mainTextureOffset += new Vector2(movingSpeed*Time.deltaTime, 0);
         if (childRenderer.material.mainTextureOffset.x > 100)
             childRenderer.material.mainTextureOffset = new Vector2(childRenderer.material.mainTextureOffset.x % 100, 0);
+
+        if (itemInConveyor)
+            updateItemPosition();
+        
     }
 }
