@@ -54,58 +54,72 @@ public class conveyor : MonoBehaviour
     }
 
     
-    void addItemToConveyor(GameObject item)
+    public bool addItemToConveyor(GameObject item)
     {
-        if (itemInConveyor != null || isOccupied || !acceptsObjects)return;
+        if (itemInConveyor != null || isOccupied || !acceptsObjects)return false;
         this.isOccupied = true;
         itemInConveyor = item;
         item.transform.parent = gameObject.transform;
-        item.transform.localPosition = new Vector3(startPoint* length, 0, 0);
+        item.transform.localPosition = new Vector3(startPoint, 0, 0);
+        return true;
 
     }
    
-    void deliverItem()
+   private bool deliverItem()
     {
-        
+        return true;
     }
     
-    void removeItemFromConveyor(conveyorItemRemoveReason reason)
+    private bool pickUp(GameObject plObj)
     {
-        
+        if (!canPickUp || !itemInConveyor) return false;
+        this.canPickUp = false;
+
+        itemInConveyor.transform.parent = plObj.transform;
+        itemInConveyor.transform.localPosition = new Vector3(0, 0, 0);
+        itemInConveyor = null;
+        isOccupied = false;
+        return true;
+    }
+    
+    public bool removeItemFromConveyor(conveyorItemRemoveReason reason, GameObject playerObj)
+    {
         switch (reason)
         {
             case conveyorItemRemoveReason.pickUp:
+                return pickUp(playerObj);
                 break;
             case conveyorItemRemoveReason.continueLine:
                 break;
             case conveyorItemRemoveReason.deliver:
-                deliverItem();
+               return deliverItem();
                 break;
 
         }
+        return false;
         
     }
 
-    void removeItemFromConveyor(int reason)
+    public bool removeItemFromConveyor(int reason, GameObject playerObj)
     {
-        removeItemFromConveyor((conveyorItemRemoveReason)reason);
+        return removeItemFromConveyor((conveyorItemRemoveReason)reason,playerObj);
     }
     
-    void updateItemPosition()
+    private void updateItemPosition()
     {
         canPickUp = false;
         if (itemInConveyor == null) return;
-        if (itemInConveyor.transform.localPosition.x >= endPoint * length)
+        if (itemInConveyor.transform.localPosition.x >= endPoint)
         {
             if (nextConveyorComponent)
             {
                 if (nextConveyorComponent.isOccupied) return;
                 else
                 {
-                    if (itemInConveyor.transform.localPosition.x >= .5 * length)
+                    if (itemInConveyor.transform.localPosition.x >= .5 )
                     {
                         nextConveyorComponent.addItemToConveyor(this.itemInConveyor);
-                        removeItemFromConveyor(conveyorItemRemoveReason.continueLine);
+                        removeItemFromConveyor(conveyorItemRemoveReason.continueLine,null);
                     }
                         
                 }
@@ -116,9 +130,9 @@ public class conveyor : MonoBehaviour
             };
         }
         itemInConveyor.transform.localPosition = new Vector3(itemInConveyor.transform.localPosition.x + movingSpeed* Time.deltaTime, 0, 0);
-        if (itemInConveyor.transform.localPosition.x > endPoint * length)
+        if (itemInConveyor.transform.localPosition.x >= endPoint && !nextConveyorComponent)
         {
-            
+            canPickUp = true;
         }
 
     }
@@ -126,11 +140,13 @@ public class conveyor : MonoBehaviour
         // Update is called once per frame
     void Update()
     {
-        childRenderer.material.mainTextureOffset += new Vector2(movingSpeed*Time.deltaTime, 0);
-        if (childRenderer.material.mainTextureOffset.x > 100)
-            childRenderer.material.mainTextureOffset = new Vector2(childRenderer.material.mainTextureOffset.x % 100, 0);
-
-        if (itemInConveyor)
+        if (!itemInConveyor || (itemInConveyor && !canPickUp))
+        {
+            childRenderer.material.mainTextureOffset += new Vector2(movingSpeed * Time.deltaTime, 0);
+            if (childRenderer.material.mainTextureOffset.x > 100)
+                childRenderer.material.mainTextureOffset = new Vector2(childRenderer.material.mainTextureOffset.x % 100, 0);
+        }
+        if (itemInConveyor && !canPickUp)
             updateItemPosition();
         
     }

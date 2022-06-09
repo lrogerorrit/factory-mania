@@ -5,13 +5,13 @@ using UnityEngine;
 public class box : MonoBehaviour
 {
 
-    public GameObject item;
+    public int itemId;
+    [SerializeField] private ItemDirectory itemDirectory;
 
 
-    void generateItem(GameObject player)
+    public GameObject generateItem()
     {
-        Vector3 pos = new Vector3(player.transform.position.x, player.transform.position.y + 1, player.transform.position.z);
-        Instantiate(item, pos, Quaternion.identity);
+        return itemDirectory.getItemWithId(itemId);
         //TODO: Add it to player controller
     }
 

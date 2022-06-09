@@ -432,9 +432,17 @@ MonoBehaviour:
   assetGuid: 
   m_Mesh: {fileID: 0}
   m_IsSelectable: 1
-  m_SelectedFaces: 
-  m_SelectedEdges: []
-  m_SelectedVertices: 
+  m_SelectedFaces: 00000000
+  m_SelectedEdges:
+  - a: 0
+    b: 0
+  - a: 0
+    b: 0
+  - a: 0
+    b: 0
+  - a: 0
+    b: 0
+  m_SelectedVertices: 00000000000000000000000000000000
 --- !u!1 &3310540735611449203
 GameObject:
   m_ObjectHideFlags: 0
@@ -528,9 +536,10 @@ GameObject:
   m_Component:
   - component: {fileID: 3310540735733434839}
   - component: {fileID: 3310540735987345740}
+  - component: {fileID: 7979038081923934625}
   m_Layer: 0
   m_Name: box
-  m_TagString: Untagged
+  m_TagString: box
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -564,7 +573,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64b1e5b1c4c7cf040818a17d2fb82f01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  item: {fileID: 0}
+  itemId: 0
+  itemDirectory: {fileID: 0}
+--- !u!65 &7979038081923934625
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3310540735733434838}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 9, y: 6.86594, z: 9}
+  m_Center: {x: 0, y: -1.5459938, z: 0}
 --- !u!1 &3310540735790763878
 GameObject:
   m_ObjectHideFlags: 0
@@ -990,6 +1013,24 @@ MonoBehaviour:
   assetGuid: 
   m_Mesh: {fileID: 0}
   m_IsSelectable: 1
-  m_SelectedFaces: 
-  m_SelectedEdges: []
-  m_SelectedVertices: 
+  m_SelectedFaces: 00000000
+  m_SelectedEdges:
+  - a: 0
+    b: 0
+  - a: 0
+    b: 0
+  - a: 0
+    b: 0
+  - a: 0
+    b: 0
+  - a: 0
+    b: 0
+  - a: 0
+    b: 0
+  - a: 0
+    b: 0
+  - a: 0
+    b: 0
+  - a: 0
+    b: 0
+  m_SelectedVertices: 00000000000000000000000000000000000000000000000000000000000000000000000000000000

@@ -22,6 +22,12 @@ TagManager:
   - Reward
   - objectiveTriangle
   - item
+  - box
+  - conveyor
+  - transformer
+  - combiner
+  - conveyorEntrance
+  - conveyorExit
   layers:
   - Default
   - TransparentFX

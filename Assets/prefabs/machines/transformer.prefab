@@ -101,6 +101,7 @@ MonoBehaviour:
   isInserted: 0
   isTransformed: 0
   timeInMachine: 0
+  canInsertItem: 1
 --- !u!1 &3391869458844866294
 GameObject:
   m_ObjectHideFlags: 0
@@ -111,9 +112,10 @@ GameObject:
   m_Component:
   - component: {fileID: 3391869458844866293}
   - component: {fileID: 3391869458642635026}
+  - component: {fileID: 3391869458642635025}
   m_Layer: 0
   m_Name: transformer
-  m_TagString: Untagged
+  m_TagString: transformer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -151,6 +153,20 @@ MonoBehaviour:
   isInserted: 0
   isTransformed: 0
   timeInMachine: 0
+  canInsertItem: 1
+--- !u!65 &3391869458642635025
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3391869458844866294}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 5.416767, y: 6.8732085, z: 7.2220764}
+  m_Center: {x: -2.226759, y: 2.4080403, z: 0.63565063}
 --- !u!1 &3391869459004204431
 GameObject:
   m_ObjectHideFlags: 0

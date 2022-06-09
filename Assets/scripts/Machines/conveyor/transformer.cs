@@ -9,46 +9,72 @@ public class transformer : MonoBehaviour
     public MachineConfig configuration;
 
     // Start is called before the first frame update
-    [HideInInspector] public ItemData insertedObject;
+     public ItemData insertedObject;
     [HideInInspector] public bool isInserted = false;
-    [HideInInspector] public bool isTransformed = false;
+    public bool isTransformed = false;
     [HideInInspector] public float timeInMachine = 0.0f;
+    [HideInInspector] public bool canInsertItem = true;
+    
 
     private Recepie activeRecepie;
 
 
-    void insertIntoMachine(GameObject item)
+    public bool insertIntoMachine(GameObject item)
     {
-        ItemData itemData = item.GetComponent<ItemData>();
-
-        if (configuration.acceptedItemIds.Contains(itemData.itemType))
+        if (!canInsertItem) return false;
+        ItemData itemDataTemp = item.GetComponent<ItemData>();
+        if (itemDataTemp)
         {
-            List<int> itemList = new List<int>();
-            itemList.Add(itemData.itemType);
-            Recepie recepie = configuration.getRecepieForItems(itemList);
-            if (recepie != null)
+            
+            if (configuration.acceptedItemIds.Contains(itemDataTemp.itemType))
             {
-                insertedObject = itemData;
-                isInserted = true;
-                activeRecepie = recepie;
-                //TODO: Remove item from player controller
+                ItemData itemData = gameObject.AddComponent<ItemData>() as ItemData;
+                itemData.itemType = itemDataTemp.itemType;
+                itemData.itemName = itemDataTemp.itemName;
+                
+                Debug.Log("Accepted id");
+                List<int> itemList = new List<int>();
+                itemList.Add(itemData.itemType);
+                Recepie recepie = configuration.getRecepieForItems(itemList);
+                if (recepie)
+                {
+                    Debug.Log("Found recepie");
+                    insertedObject = itemData;
+                    isInserted = true;
+                    activeRecepie = recepie;
+                    canInsertItem = false;
+                    isTransformed = false;
+                    return true;
+                    
 
+                }
             }
+            else
+                Debug.Log("rejected id");
         }
+        return false;
     }
 
-    bool canRemoveItem()
+    public bool canRemoveItem()
     {
         return isInserted && isTransformed;
     }
 
-    void removeItem()
+    public int removeItem()
     {
-        if (!canRemoveItem()) return;
+        if (!canRemoveItem()) return -1;
         isInserted = false;
         isTransformed = false;
         timeInMachine = 0.0f;
-        //TODO:
+        int idToReturn = (int) this.activeRecepie.outputId;
+        Destroy(this.insertedObject);
+
+        this.insertedObject = null;
+        canInsertItem = true;
+        activeRecepie = null;
+        
+        return idToReturn;
+        
     }
 
     void updateTopTimer()
@@ -56,10 +82,24 @@ public class transformer : MonoBehaviour
         
     }
 
+    void updateItem()
+    {
+        timeInMachine += Time.deltaTime;
+        if (timeInMachine >= activeRecepie.time)
+        {
+            isTransformed = true;
+            timeInMachine = 0.0f;
+        }
+    }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (isInserted && !isTransformed)
+        {
+            updateItem();
+            updateTopTimer();
+        }
+
     }
 }
