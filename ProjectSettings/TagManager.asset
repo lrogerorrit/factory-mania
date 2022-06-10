@@ -28,6 +28,8 @@ TagManager:
   - combiner
   - conveyorEntrance
   - conveyorExit
+  - combinerA
+  - combinerB
   layers:
   - Default
   - TransparentFX

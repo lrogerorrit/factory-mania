@@ -1,25 +1,62 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 public class playerController : MonoBehaviour
 {
-    
+    [Range(0.0f, 5.0f)] public float interactionTime = 1.0f;
+    [SerializeField] private Image progressBar;
+    [SerializeField] private Image progressBarBackground;
     [SerializeField] private GameObject itemPosObj;
     [SerializeField] private ItemDirectory itemDirectory;
     [HideInInspector] public GameObject item;
     [HideInInspector] public bool hasItem=false;
+    
+    
+    public float touchingTime = 0.0f;
+    public bool touching = false;
+    public bool reachedTime = false;
+    
+
+    private bool progressBarVisible = false;
     // Start is called before the first frame update
     void Start()
     {
-     
+        if (!progressBar) return;
+        setProgressBarVisibility(false);
+        progressBar.fillAmount = 0;
     }
+
+    
 
     // Update is called once per frame
     void Update()
     {
+        if (touching && !reachedTime)
+        {
+            this.touchingTime += Time.deltaTime;
+            updateProgressBar();
+        }
         
+    }
+
+    void updateProgressBar(float timeVal=-1.0f)
+    {
+        float timeValue = (timeVal == -1.0f) ? touchingTime : timeVal;
+        this.progressBar.fillAmount = Mathf.Min(timeValue / interactionTime,1.0f);
+
+
+    }
+    
+    void setProgressBarVisibility(bool state)
+    {
+        this.progressBarVisible = state;
+        this.progressBar.gameObject.SetActive(state);
+        this.progressBarBackground.gameObject.SetActive(state);
+
+
     }
 
     public bool getHasItem()
@@ -46,6 +83,7 @@ public class playerController : MonoBehaviour
         }
         item = null;
         hasItem = false;
+        
     }
 
     public GameObject getItem()
@@ -76,6 +114,7 @@ public class playerController : MonoBehaviour
             {
                 Debug.Log("Transfer successfull item");
                 item = itemPosObj.transform.GetChild(0).gameObject;
+                hasItem = true;
             }
         }
         
@@ -100,8 +139,10 @@ public class playerController : MonoBehaviour
             if (transf.canInsertItem)
             {
                 if (transf.insertIntoMachine(this.item))
-                    this.removeItem();
-                 
+                {
+                    Debug.Log("bing bong the item should be gone");
+                    this.removeItem(true);
+                }
             }
         }
         else
@@ -119,23 +160,76 @@ public class playerController : MonoBehaviour
         }
     }
 
-    
-
-    private void OnTriggerEnter(Collider other)
+    private void combinerTrigger(GameObject other, bool isA)
     {
-        switch (other.tag)
+        Debug.Log("combiner hit");
+        Combiner comb = other.GetComponent<Combiner>();
+        if (item)
         {
-            case "conveyorEntrance":
-            case "conveyorExit":
-                conveyorTrigger(other.gameObject, other.tag == "conveyorEntrance");
-                break;
-            case "box":
-                boxTrigger(other.gameObject);
-                break;
-            case "transformer":
-                transformerTrigger(other.gameObject);
-                break;
+            Debug.Log("Trying to insert item");
+            if((isA&& comb.canInsertItemA)|| (!isA && comb.canInsertItemB))
+            {
+                if (comb.insertIntoMachine(this.item, isA))
+                {
+                    Debug.Log("bing bong the item should be gone");
+                    this.removeItem(true);
+                }
+            }
         }
+        else
+        {
+            Debug.Log("Trying to remove item");
+            int itemId = comb.removeItem(isA);
+            if (itemId == -1)
+            {
+                Debug.Log("No item to remove");
+                return;
+            }
+            GameObject item = itemDirectory.getItemWithId(itemId);
+            this.setItem(item);
+        }
+    }
+
+        private void OnTriggerEnter(Collider other)
+    {
+        this.touching = true;
+        setProgressBarVisibility(true);
         
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (touchingTime >= interactionTime && !reachedTime)
+        {
+            reachedTime = true;
+            setProgressBarVisibility(false);
+            switch (other.tag)
+            {
+                case "conveyorEntrance":
+                case "conveyorExit":
+                    conveyorTrigger(other.gameObject, other.tag == "conveyorEntrance");
+                    break;
+                case "box":
+                    boxTrigger(other.gameObject);
+                    break;
+                case "transformer":
+                    transformerTrigger(other.gameObject);
+                    break;
+                case "combinerA":
+                case "combinerB":
+                    combinerTrigger(other.gameObject, other.tag == "combinerA");
+                    break;
+            }
+        }
+
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        this.touching = false;
+        this.touchingTime = 0.0f;
+        this.reachedTime = false;
+        updateProgressBar();
+        setProgressBarVisibility(false);
     }
 }

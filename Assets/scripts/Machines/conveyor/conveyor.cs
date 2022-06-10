@@ -25,6 +25,7 @@ public class conveyor : MonoBehaviour
     public bool acceptsObjects = true;
     public bool isDeliver = false;
     public bool canPickUp = false;
+    public bool waitingForNext = false;
 
     private float length;
 
@@ -36,8 +37,8 @@ public class conveyor : MonoBehaviour
 
     private Vector3 objSize;
 
-   public conveyor nextConveyorComponent;
-   public conveyor prevConveyorComponent;
+   [SerializeField]private conveyor nextConveyorComponent;
+   [SerializeField] private conveyor prevConveyorComponent;
     
 
     
@@ -53,10 +54,10 @@ public class conveyor : MonoBehaviour
         length = objSize.x;
     }
 
-    
-    public bool addItemToConveyor(GameObject item)
+
+    public bool addItemToConveyor(GameObject item, bool fromLine = false)
     {
-        if (itemInConveyor != null || isOccupied || !acceptsObjects)return false;
+        if (itemInConveyor != null || isOccupied || (!fromLine && !acceptsObjects)) return false;
         this.isOccupied = true;
         itemInConveyor = item;
         item.transform.parent = gameObject.transform;
@@ -82,6 +83,22 @@ public class conveyor : MonoBehaviour
         return true;
     }
     
+    private bool continueLine()
+    {
+        if (this.nextConveyorComponent)
+        {
+            
+            
+            itemInConveyor = null;
+            isOccupied = false;
+            canPickUp = false;
+
+            return true;
+            
+        }
+        return false;
+    }
+    
     public bool removeItemFromConveyor(conveyorItemRemoveReason reason, GameObject playerObj)
     {
         switch (reason)
@@ -90,6 +107,7 @@ public class conveyor : MonoBehaviour
                 return pickUp(playerObj);
                 break;
             case conveyorItemRemoveReason.continueLine:
+                return continueLine();
                 break;
             case conveyorItemRemoveReason.deliver:
                return deliverItem();
@@ -113,13 +131,22 @@ public class conveyor : MonoBehaviour
         {
             if (nextConveyorComponent)
             {
-                if (nextConveyorComponent.isOccupied) return;
+                if (nextConveyorComponent.isOccupied) {
+                    waitingForNext = true;
+                    return;
+                }
                 else
                 {
-                    if (itemInConveyor.transform.localPosition.x >= .5 )
+                    waitingForNext = false;
+                    if (itemInConveyor.transform.localPosition.x >= .455 )
                     {
-                        nextConveyorComponent.addItemToConveyor(this.itemInConveyor);
-                        removeItemFromConveyor(conveyorItemRemoveReason.continueLine,null);
+                        if (nextConveyorComponent.addItemToConveyor(this.itemInConveyor, true))
+                            removeItemFromConveyor(conveyorItemRemoveReason.continueLine, null);
+                        else
+                            waitingForNext = true;
+                        
+                        return;
+                            
                     }
                         
                 }
@@ -140,7 +167,7 @@ public class conveyor : MonoBehaviour
         // Update is called once per frame
     void Update()
     {
-        if (!itemInConveyor || (itemInConveyor && !canPickUp))
+        if (!itemInConveyor || (itemInConveyor && (!canPickUp&&!waitingForNext)))
         {
             childRenderer.material.mainTextureOffset += new Vector2(movingSpeed * Time.deltaTime, 0);
             if (childRenderer.material.mainTextureOffset.x > 100)
