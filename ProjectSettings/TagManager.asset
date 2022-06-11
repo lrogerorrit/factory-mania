@@ -30,6 +30,7 @@ TagManager:
   - conveyorExit
   - combinerA
   - combinerB
+  - bin
   layers:
   - Default
   - TransparentFX

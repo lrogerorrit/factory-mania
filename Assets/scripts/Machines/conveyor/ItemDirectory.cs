@@ -12,11 +12,19 @@ public class ItemDirectory : MonoBehaviour
     {
         if (itemDirectory[i])
         {
-            Vector3 pos = new Vector3(0, 0, 0);
-            GameObject toReturn = Instantiate(itemDirectory[i], pos, Quaternion.identity);
+            
+            GameObject toReturn = Instantiate(itemDirectory[i], new Vector3(0,0,0), Quaternion.identity);
             return toReturn;
         }
         return null;
     }
+    public Sprite getIdSprite(int i)
+    {
+        return itemDirectory[i].GetComponent<ItemData>().image;
+    }
     
+    public string getObjectName(int i)
+    {
+        return itemDirectory[i].GetComponent<ItemData>().itemName;
+    }
 }

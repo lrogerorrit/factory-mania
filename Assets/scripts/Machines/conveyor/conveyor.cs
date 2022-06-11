@@ -35,12 +35,14 @@ public class conveyor : MonoBehaviour
     private Renderer childRenderer;
     //private Renderer selfRenderer;
 
+    private LevelHandler levelHandler;
+
     private Vector3 objSize;
 
    [SerializeField]private conveyor nextConveyorComponent;
    [SerializeField] private conveyor prevConveyorComponent;
-    
 
+    private OrderHandler orderHandler;
     
     
     // Start is called before the first frame update  
@@ -49,11 +51,14 @@ public class conveyor : MonoBehaviour
         child = gameObject.transform.Find("base").gameObject;
         childRenderer = child.GetComponent<Renderer>();
         //selfRenderer = GetComponent<Renderer>();
-
+        levelHandler = LevelHandler.instance;
+        orderHandler = OrderHandler.instance;
         objSize = transform.localScale;
         length = objSize.x;
+        if(isDeliver)
+            childRenderer.material.color= Color.green;
     }
-
+    
 
     public bool addItemToConveyor(GameObject item, bool fromLine = false)
     {
@@ -68,7 +73,19 @@ public class conveyor : MonoBehaviour
    
    private bool deliverItem()
     {
-        return true;
+        Debug.Log("hu");
+        if (!orderHandler) return false;
+        Debug.Log("hiu");
+        ItemData itemData = itemInConveyor.GetComponent<ItemData>();
+        if (itemData)
+        {
+            bool toReturn= orderHandler.handInItem(itemData.itemType);
+
+            Destroy(itemInConveyor);
+            return toReturn;
+            
+        }
+        return false;
     }
     
     private bool pickUp(GameObject plObj)
@@ -140,6 +157,7 @@ public class conveyor : MonoBehaviour
                     waitingForNext = false;
                     if (itemInConveyor.transform.localPosition.x >= .455 )
                     {
+                        
                         if (nextConveyorComponent.addItemToConveyor(this.itemInConveyor, true))
                             removeItemFromConveyor(conveyorItemRemoveReason.continueLine, null);
                         else
@@ -152,6 +170,11 @@ public class conveyor : MonoBehaviour
                 }
             }
             else {
+                if (isDeliver)
+                {
+                    deliverItem();
+                    return;
+                }
                 canPickUp = true;
                 return;
             };
@@ -159,7 +182,14 @@ public class conveyor : MonoBehaviour
         itemInConveyor.transform.localPosition = new Vector3(itemInConveyor.transform.localPosition.x + movingSpeed* Time.deltaTime, 0, 0);
         if (itemInConveyor.transform.localPosition.x >= endPoint && !nextConveyorComponent)
         {
-            canPickUp = true;
+            if (!isDeliver)
+            {
+                canPickUp = true;
+            }
+            else
+                if (itemInConveyor.transform.localPosition.x >= .5)
+                    canPickUp = true;
+            
         }
 
     }

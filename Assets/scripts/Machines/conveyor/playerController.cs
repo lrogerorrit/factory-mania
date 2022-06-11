@@ -11,7 +11,7 @@ public class playerController : MonoBehaviour
     [SerializeField] private Image progressBarBackground;
     [SerializeField] private GameObject itemPosObj;
     [SerializeField] private ItemDirectory itemDirectory;
-    [HideInInspector] public GameObject item;
+    public GameObject item;
     [HideInInspector] public bool hasItem=false;
     
     
@@ -163,7 +163,7 @@ public class playerController : MonoBehaviour
     private void combinerTrigger(GameObject other, bool isA)
     {
         Debug.Log("combiner hit");
-        Combiner comb = other.GetComponent<Combiner>();
+        Combiner comb = other.transform.parent.GetComponent<Combiner>();
         if (item)
         {
             Debug.Log("Trying to insert item");
@@ -190,6 +190,13 @@ public class playerController : MonoBehaviour
         }
     }
 
+    private void binTrigger()
+    {
+        Debug.Log("bin hit");
+        if (item)
+            this.removeItem(true);
+    }
+
         private void OnTriggerEnter(Collider other)
     {
         this.touching = true;
@@ -199,6 +206,7 @@ public class playerController : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
+        
         if (touchingTime >= interactionTime && !reachedTime)
         {
             reachedTime = true;
@@ -218,6 +226,9 @@ public class playerController : MonoBehaviour
                 case "combinerA":
                 case "combinerB":
                     combinerTrigger(other.gameObject, other.tag == "combinerA");
+                    break;
+                case "bin":
+                    binTrigger();
                     break;
             }
         }

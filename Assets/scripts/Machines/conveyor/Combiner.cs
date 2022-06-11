@@ -26,15 +26,18 @@ public class Combiner : MonoBehaviour
 
     bool insertItem(GameObject item, bool canInsert, bool isA=true)
     {
+        
         if (!canInsert) return false;
         ItemData itemDataTemp = item.GetComponent<ItemData>();
         if (itemDataTemp)
         {
+            if ((isA && insertedObjectA) || (!isA && insertedObjectB)) return false;
             if (configuration.acceptedItemIds.Contains(itemDataTemp.itemType))
             {
                 ItemData itemData = gameObject.AddComponent<ItemData>() as ItemData;
                 itemData.itemType = itemDataTemp.itemType;
                 itemData.itemName = itemDataTemp.itemName;
+                itemData.image = itemDataTemp.image;
 
                 Debug.Log("Accepted id");
                 List<int> itemList = new List<int>();
