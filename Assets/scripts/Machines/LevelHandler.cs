@@ -22,10 +22,11 @@ public class LevelHandler : MonoBehaviour
 
     private bool audioFast = false;
     private bool lvlEnded = false;
-    private bool instructionsVisible = false;
+    [HideInInspector] public bool instructionsVisible = false;
     private float instr_sliderValue = 1.0f;
     private int xp = 0;
 
+    [SerializeField] private float instructionsVisibleTime = 10.0f;
 
     void Awake()
     {
@@ -47,7 +48,7 @@ public class LevelHandler : MonoBehaviour
     {
         if (instructionsVisible)
         {
-            instr_sliderValue -= Time.deltaTime/5;
+            instr_sliderValue -= Time.deltaTime / instructionsVisibleTime ;
             instr_slider.fillAmount = instr_sliderValue;
             if (instr_sliderValue <= 0)
             {

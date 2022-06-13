@@ -64,7 +64,7 @@ public class playerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (levelEnded) return;
+        if (levelEnded || levelHandler.instructionsVisible) return;
         checkLevelEnded();
         updatePosition();
         if (touching && !reachedTime)

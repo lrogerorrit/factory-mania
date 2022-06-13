@@ -157,7 +157,7 @@ public class conveyor : MonoBehaviour
                 else
                 {
                     waitingForNext = false;
-                    if (itemInConveyor.transform.localPosition.x >= .455 )
+                    if (itemInConveyor.transform.localPosition.x >= .5 )
                     {
                         
                         if (nextConveyorComponent.addItemToConveyor(this.itemInConveyor, true))
