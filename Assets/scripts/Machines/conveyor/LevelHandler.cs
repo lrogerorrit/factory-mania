@@ -145,7 +145,7 @@ public class LevelHandler : MonoBehaviour
     {
         this.xp -= xp;
         this.xp = Mathf.Max(0, this.xp);
-        soundHandler.playAudio("orderFail");
+        soundHandler.playAudio("failOrder");
     }
 
     public void handInBadOrder()
