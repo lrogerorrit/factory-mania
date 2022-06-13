@@ -5,7 +5,7 @@ using UnityEngine;
 public class Order : MonoBehaviour
 {
     public int itemId;
-    [Range(1.0f, 60.0f)] public float time=5.0f;
+    [Range(1.0f, 120.0f)] public float time=5.0f;
     [Range(0.0f, 60.0f)] public float minAppearanceTime = 30.0f;
     public int xp;
 

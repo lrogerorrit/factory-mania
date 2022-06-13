@@ -80,8 +80,10 @@ public class conveyor : MonoBehaviour
         if (itemData)
         {
             bool toReturn= orderHandler.handInItem(itemData.itemType);
-
+            
             Destroy(itemInConveyor);
+            itemInConveyor = null;
+            isOccupied = false;
             return toReturn;
             
         }

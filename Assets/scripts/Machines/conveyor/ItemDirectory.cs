@@ -4,9 +4,13 @@ using UnityEngine;
 
 public class ItemDirectory : MonoBehaviour
 {
-
+    static public ItemDirectory instance;
     public List<GameObject> itemDirectory;
-    // Start is called before the first frame update
+
+    void Awake()
+    {
+        instance = this;
+    }
 
     public GameObject getItemWithId(int i)
     {

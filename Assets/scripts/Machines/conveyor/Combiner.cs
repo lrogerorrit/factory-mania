@@ -81,6 +81,7 @@ public class Combiner : MonoBehaviour
 
     public int removeItem(bool isA=true) //TODO Make it so you can remove items at any time
     {
+        
         int idToReturn;
         if (canTransform && !isTransformed) return -1;
         if (insertedObjects == 2 && isTransformed) {
@@ -105,12 +106,14 @@ public class Combiner : MonoBehaviour
 
             if (isA)
             {
+                if (!insertedObjectA) return -1;
                 idToReturn = (int)this.insertedObjectA.itemType;
                 canInsertItemA = true;
                 this.insertedObjectA = null;
             }
             else
             {
+                if (!insertedObjectB) return -1;
                 idToReturn = (int)this.insertedObjectB.itemType;
                 canInsertItemB = true;
                 this.insertedObjectB = null;

@@ -10,7 +10,8 @@ public class playerController : MonoBehaviour
     [SerializeField] private Image progressBar;
     [SerializeField] private Image progressBarBackground;
     [SerializeField] private GameObject itemPosObj;
-    [SerializeField] private ItemDirectory itemDirectory;
+    private ItemDirectory itemDirectory;
+    private LevelHandler levelHandler;
     public GameObject item;
     [HideInInspector] public bool hasItem=false;
     
@@ -18,22 +19,54 @@ public class playerController : MonoBehaviour
     public float touchingTime = 0.0f;
     public bool touching = false;
     public bool reachedTime = false;
-    
+
+    public Vector2 minPositions;
+    public Vector2 maxPositions;
+    public GameObject toFollow;
+
+    public Vector3 offset = new Vector3(-3.8f, 3.35f, 1.66f);
 
     private bool progressBarVisible = false;
+    
+    
+
+    private bool levelEnded = false;
     // Start is called before the first frame update
     void Start()
     {
         if (!progressBar) return;
+        levelHandler = LevelHandler.instance;
+        itemDirectory = ItemDirectory.instance;
         setProgressBarVisibility(false);
         progressBar.fillAmount = 0;
     }
 
     
+    void updatePosition()
+    {
+        Vector3 newPos = toFollow.transform.position;
+        newPos.x = Mathf.Clamp(newPos.x, minPositions.x, maxPositions.x);
+        newPos.z = Mathf.Clamp(newPos.z, minPositions.y, maxPositions.y);
+        transform.position = newPos+offset;
+        
+    }
+
+    void checkLevelEnded()
+    {
+        if (levelHandler.didLevelEnd())
+        {
+            levelEnded = true;
+            setProgressBarVisibility(false);
+            updateProgressBar(0.0f);
+        }
+    }
 
     // Update is called once per frame
     void Update()
     {
+        if (levelEnded) return;
+        checkLevelEnded();
+        updatePosition();
         if (touching && !reachedTime)
         {
             this.touchingTime += Time.deltaTime;
@@ -199,6 +232,7 @@ public class playerController : MonoBehaviour
 
         private void OnTriggerEnter(Collider other)
     {
+        if (levelEnded) return;
         this.touching = true;
         setProgressBarVisibility(true);
         
@@ -206,7 +240,7 @@ public class playerController : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        
+        if (levelEnded) return;
         if (touchingTime >= interactionTime && !reachedTime)
         {
             reachedTime = true;
@@ -237,6 +271,7 @@ public class playerController : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
+        if (levelEnded) return;
         this.touching = false;
         this.touchingTime = 0.0f;
         this.reachedTime = false;

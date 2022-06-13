@@ -7,7 +7,7 @@ public class box : MonoBehaviour
 {
 
     public int itemId;
-    [SerializeField] private ItemDirectory itemDirectory;
+    private ItemDirectory itemDirectory;
     [SerializeField] private Image icon;
 
 
@@ -19,6 +19,7 @@ public class box : MonoBehaviour
 
     void Start()
     {
+        itemDirectory = ItemDirectory.instance;
         this.icon.sprite= itemDirectory.getIdSprite(itemId);
     }
 

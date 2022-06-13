@@ -14,10 +14,16 @@ public class OrderCard : MonoBehaviour
     private bool willDelete;
 
 
-    public void setUp(Order order,GameObject parentObj,GameObject template,ItemDirectory itemDirectory)
+    void Start()
+    {
+        
+    }
+
+    public void setUp(Order order,GameObject parentObj,GameObject template)
     {
         willDelete = false;
-        this.itemDirectory = itemDirectory;
+        if(!itemDirectory)
+            itemDirectory = ItemDirectory.instance;
         this.card = Instantiate(template, parentObj.transform);
         setNewParent(parentObj.transform);
         this.text = this.card.GetComponentInChildren<Text>();

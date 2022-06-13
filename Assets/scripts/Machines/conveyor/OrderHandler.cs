@@ -18,6 +18,8 @@ public class OrderHandler : MonoBehaviour
     public int maxOrders = 4;
     public int activeOrderNum = 0;
     public List<Order> possibleOrders;
+    public bool isActive = false;
+    private SoundHandler soundHandler;
 
 
     public List<orderData> activeOrders= new List<orderData>();
@@ -30,7 +32,7 @@ public class OrderHandler : MonoBehaviour
     public float minTimeBetweenOrders = 5.0f;
 
     [SerializeField] private List<GameObject> cardPositions;
-    [SerializeField] private ItemDirectory itemDirectory;
+    private ItemDirectory itemDirectory;
     [SerializeField] private GameObject template;
 
     private LevelHandler levelHandler;
@@ -38,18 +40,23 @@ public class OrderHandler : MonoBehaviour
     void Awake()
     {
         instance = this;
+        Random.seed = System.DateTime.Now.Millisecond;
     }
 
     private void makeNewOrder()
     {
-        Order selectedOrder = possibleOrders[Random.Range(0, possibleOrders.Count)];
+        int index = Random.Range(0, possibleOrders.Count);
+        Debug.Log(index);
+        Order selectedOrder = possibleOrders[index];
         Debug.Log(selectedOrder);
         
         while (timer < selectedOrder.minAppearanceTime)
         {
             
-            Debug.Log(selectedOrder);
-            selectedOrder = possibleOrders[Random.Range(0, possibleOrders.Count)];
+            Debug.Log("Rerolling");
+            index = Random.Range(0, possibleOrders.Count);
+            Debug.Log(index);
+            selectedOrder = possibleOrders[index];
         }
         
         orderData newOrder = new orderData();
@@ -59,8 +66,8 @@ public class OrderHandler : MonoBehaviour
         newOrder.spawnTime = Time.time;
         newOrder.willDelete = false;
         newOrder.remainingTime = newOrder.order.getTime();
-        newOrder.card.setUp(newOrder.order, cardPositions[activeOrderNum],template,itemDirectory);
-        
+        newOrder.card.setUp(newOrder.order, cardPositions[activeOrderNum],template);
+        soundHandler.playAudio("newOrder");
 
 
         
@@ -73,7 +80,33 @@ public class OrderHandler : MonoBehaviour
     }
 
 
-    
+    void chechOrdersToDelete(bool noSound=false)
+    {
+        int displacement = 0;
+
+        for (int i = 0; i < activeOrders.Count; ++i)
+        {
+            orderData o = activeOrders[i - displacement];
+            if (activeOrders[i - displacement].card.getShouldDelete())
+            {
+                /*
+                if(!noSound)
+                    soundHandler.playAudio("failOrder");*/
+                updateCardPositions(i - displacement);
+                activeOrderNum = Mathf.Max(0, activeOrderNum - 1);
+
+                activeOrders[i - displacement].card.destroyCard();
+                Destroy(activeOrders[i - displacement].order);
+                Destroy(activeOrders[i - displacement].card);
+                activeOrders.Remove(activeOrders[i - displacement]);
+
+                displacement++;
+
+
+            }
+
+        }
+    }
 
     void updateCardPositions(int removedPos)
     {
@@ -87,14 +120,16 @@ public class OrderHandler : MonoBehaviour
     void Start()
     {
         ti = Time.time;
+        itemDirectory = ItemDirectory.instance;
+        soundHandler = SoundHandler.instance;
         levelHandler = LevelHandler.instance;
-        makeNewOrder(); //TODO: Remove
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        if (!isActive) return;
         timeSinceLastOrder += Time.deltaTime;
         if ((timeSinceLastOrder > minTimeBetweenOrders) && (activeOrderNum < maxOrders))
         {
@@ -120,48 +155,25 @@ public class OrderHandler : MonoBehaviour
             activeOrders[i].card.setSlider(Mathf.Max(0.0f,1.0f-remTime));
             if ((1.0f-remTime) <= 0.0f && ! activeOrders[i].card.getShouldDelete())
             {
-                
+                levelHandler.failOrder((int) Mathf.Floor(activeOrders[i].order.getXp()/2));
                 activeOrders[i].card.setShouldDelete(true);
                 
-                
-
-                
-
             }
         }
 
-       
-        int displacement = 0;
-        
-       for (int i=0; i<activeOrders.Count;++i)
-        {
-            orderData o = activeOrders[i-displacement];
-            if (activeOrders[i-displacement].card.getShouldDelete())
-            {
-                
-                
-                updateCardPositions(i - displacement);
-                activeOrderNum = Mathf.Max(0, activeOrderNum - 1);
-                
-                activeOrders[i-displacement].card.destroyCard();
-                Destroy(activeOrders[i - displacement].order);
-                Destroy(activeOrders[i - displacement].card);
-                activeOrders.Remove(activeOrders[i-displacement]);
+        chechOrdersToDelete();
 
-                
-                displacement++;
-                
 
-            }
-            
-        }
 
-        
+
+
     }
 
     public void enableTimer(bool state)
     {
         timerOn = state;
+        if (timerOn)
+            timer = 0.0f;
     }
 
     public bool handInItem(int id)
@@ -171,13 +183,33 @@ public class OrderHandler : MonoBehaviour
             orderData o = activeOrders[i];
             if (o.order.getId() == id)
             {
-                levelHandler.handInGoodOrder(o.order.getXp());
+                levelHandler.handInGoodOrder(o.order.getXp(),id);
                 activeOrders[i].card.setShouldDelete(true);
+                chechOrdersToDelete(true);
                 return true;
             }
         }
         levelHandler.handInBadOrder();
         return false;
+    }
+
+    public void forceSpawnItem()
+    {
+        makeNewOrder();
+    }
+
+    public void setIsActive(bool state)
+    {
+        isActive = state;
+    }
+
+    public void deleteRemainingOrders()
+    {
+        for (int i = 0; i < activeOrders.Count; ++i)
+        {
+            activeOrders[i].card.setShouldDelete(true);
+        }
+        chechOrdersToDelete(true);
     }
 
 }
